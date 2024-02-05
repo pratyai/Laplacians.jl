@@ -18,5 +18,6 @@ include("testByExport.jl")
 include("testDrawing.jl")
 
 include("testSolvers.jl")
+include("testApproxChol.jl")
 
 include("testPCG.jl")
