@@ -77,17 +77,13 @@ to its basic form, i.e. split < 1, but setting
 merge to be 1 is less efficient.
 
 =#
-mutable struct ApproxCholParams
-    order::Symbol
-    stag_test::Integer
-    split::Integer
-    merge::Integer
+Base.@kwdef mutable struct ApproxCholParams
+    order::Symbol = :deg
+    stag_test::Integer = 5
+    split::Integer = 0
+    merge::Integer = 0
+    elimts::Vector{Float64} = Float64[]
 end
-
-ApproxCholParams() = ApproxCholParams(:deg, 5, 0, 0)
-ApproxCholParams(sym::Symbol) = ApproxCholParams(sym, 5, 0, 0)
-ApproxCholParams(sym::Symbol, k) = ApproxCholParams(sym, 5, k, k)
-ApproxCholParams(sym::Symbol, k, m) = ApproxCholParams(sym, 5, k, m)
 
 LDLinv(a::SparseMatrixCSC{Tval,Tind}) where {Tind,Tval} =
   LDLinv(zeros(Tind,a.n-1), zeros(Tind,a.n),Tind[],Tval[],zeros(Tval,a.n))
