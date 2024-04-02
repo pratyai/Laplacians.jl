@@ -875,7 +875,9 @@ function approxChol(a::LLmatp{Tind,Tval}) where {Tind,Tval}
 
     o = Base.Order.ord(isless, identity, false, Base.Order.Forward)
 
+    elimts = zeros(n-1)
     @inbounds while it < n
+        local t0 = time()
 
         i = approxCholPQPop!(pq)
 
@@ -963,13 +965,14 @@ function approxChol(a::LLmatp{Tind,Tval}) where {Tind,Tval}
 
         d[i] = w
 
+        elimts[it-1] = time() - t0
     end
 
     ldli.colptr[it] = ldli_row_ptr
 
     ldli.d = d
 
-    return ldli
+    return ldli, elimts
 end
 
 function approxChol(a::LLmatp{Tind,Tval}, split::Int, merge::Int) where {Tind,Tval}
@@ -1601,7 +1604,8 @@ function approxchol_lapGreedy(a::SparseMatrixCSC;
     ldli = approxChol(llmat, params.split, params.merge)
   else
     llmat = LLmatp(a)
-    ldli = approxChol(llmat)
+    ldli, elimts = approxChol(llmat)
+    append!(params.elimts, elimts)
   end
   
   
