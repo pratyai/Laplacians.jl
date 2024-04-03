@@ -896,34 +896,45 @@ function approxChol(a::LLmatp{Tind,Tval}) where {Tind,Tval}
         end
         wdeg = csum
 
+        # pick the new star centre
+        local k, koffset = begin
+            local r = rand() * csum
+            local koff = searchsortedfirst(cumspace, r, one(len), len, o)
+            colspace[koff].row, koff
+        end
+
+        # why do we need `colScale`?
         colScale = one(Tval)
 
-        for joffset in 1:(len-1)
+        # go through all the neighbours
+        for joffset in 1:len
+            if joffset == koffset
+                # nothing to do with star center except to disconnect (happens later)
+                continue
+            end
 
-            ll = colspace[joffset]
-            w = vals[joffset] * colScale
-            j = ll.row
-            revj = ll.reverse
+            # find the edge i-j in compressed edgelist
+            local ll = colspace[joffset]
+            local w = vals[joffset] * colScale
+            local j = ll.row
+            local revj = ll.reverse
 
-            f = w/(wdeg)
+            local f = w / wdeg  # for output construction
 
+            # set the edge weight to 0 (why?)
             vals[joffset] = zero(Tval)
 
-            # kind = Laplacians.blockSample(vals,k=1)[1]
-            r = rand() * (csum - cumspace[joffset]) + cumspace[joffset]
-            koff = searchsortedfirst(cumspace,r,one(len),len,o)
-
-            k = colspace[koff].row
-
+            # manage priority queue (why specifically here?)
             approxCholPQInc!(pq, k)
 
-            newEdgeVal = f*(one(Tval)-f)*wdeg
+            # j connects to the new star-centre with only half the original weight
+            local newEdgeVal = w / 2
 
+            # graph management
             # fix row k in col j
             revj.row = k   # dense time hog: presumably becaus of cache
             revj.val = newEdgeVal
             revj.reverse = ll
-
             # fix row j in col k
             khead = a.cols[k]
             a.cols[k] = ll
@@ -936,20 +947,17 @@ function approxChol(a::LLmatp{Tind,Tval}) where {Tind,Tval}
             colScale = colScale*(one(Tval)-f)
             wdeg = wdeg*(one(Tval)-f)^2
 
+            # output construction
             push!(ldli.rowval,j)
             push!(ldli.fval, f)
             ldli_row_ptr = ldli_row_ptr + one(Tind)
-
-            # push!(ops, IJop(i,j,1-f,f))  # another time suck
-
-
         end # for
 
 
-        ll = colspace[len]
-        w = vals[len] * colScale
-        j = ll.row
-        revj = ll.reverse
+        local ll = colspace[koff]
+        local w = vals[koff] * colScale
+        local j = ll.row
+        local revj = ll.reverse
 
         if it < n
             approxCholPQDec!(pq, j)
