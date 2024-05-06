@@ -2089,12 +2089,12 @@ end
 
 function ApproxCholPQ(a::Vector{Tind}) where Tind
 
-    n = length(a)
+    n = length(a)-1
     elems = Array{ApproxCholPQElem{Tind}}(undef, n)
     lists = zeros(Tind, 2*n+1)
     minlist = one(n)
 
-    for i in 1:length(a)
+    for i in 1:n
         key = a[i]
         head = lists[key]
 
@@ -2110,18 +2110,18 @@ function ApproxCholPQ(a::Vector{Tind}) where Tind
         lists[key] = i
     end
 
-    return ApproxCholPQ(elems, lists, minlist, n, n, one(Tind))
+    return ApproxCholPQ(elems, lists, minlist, n, n, one(Tind), n+1)
 end
 
 
 function ApproxCholPQ(a::Vector{Tind}, split::Int) where Tind
 
-    n = length(a)
+    n = length(a)-1
     elems = Array{ApproxCholPQElem{Tind}}(undef, n)
     lists = zeros(Tind, 2* split * n+1)
     minlist = one(n)
 
-    for i in 1:length(a)
+    for i in 1:n
         key = a[i]
         head = lists[key]
 
@@ -2137,10 +2137,15 @@ function ApproxCholPQ(a::Vector{Tind}, split::Int) where Tind
         lists[key] = i
     end
 
-    return ApproxCholPQ(elems, lists, minlist, n, n, split)
+    return ApproxCholPQ(elems, lists, minlist, n, n, split, n+1)
 end
 
 function approxCholPQPop!(pq::ApproxCholPQ{Tind}) where Tind
+    if pq.nitems == 0 && !isnothing(pq.last_vertex)
+        local v = pq.last_vertex
+        pq.last_vertex = nothing
+        return v
+    end
     if pq.nitems == 0
         error("ApproxPQ is empty")
     end
@@ -2194,6 +2199,9 @@ end
     This could crash if i exceeds the maxkey
 """
 function approxCholPQDec!(pq::ApproxCholPQ{Tind}, i) where Tind
+    if i == pq.last_vertex
+        return nothing
+    end
 
     oldlist = keyMap(pq.elems[i].key, pq.split * pq.n, 2 * pq.split * pq.n + 1)
     newlist = keyMap(pq.elems[i].key - one(Tind), pq.split * pq.n, 2 * pq.split * pq.n + 1)
@@ -2219,6 +2227,9 @@ end
     This could crash if i exceeds the maxkey
 """
 function approxCholPQInc!(pq::ApproxCholPQ{Tind}, i) where Tind
+    if i == pq.last_vertex
+        return nothing
+    end
 
     oldlist = keyMap(pq.elems[i].key, pq.split * pq.n, 2 * pq.split * pq.n + 1)
     newlist = keyMap(pq.elems[i].key + one(Tind), pq.split * pq.n, 2 * pq.split * pq.n + 1)
