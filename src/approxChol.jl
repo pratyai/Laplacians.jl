@@ -82,7 +82,6 @@ Base.@kwdef mutable struct ApproxCholParams
     stag_test::Integer = 5
     split::Integer = 0
     merge::Integer = 0
-    elimts::Vector{Float64} = Float64[]
 end
 
 LDLinv(a::SparseMatrixCSC{Tval,Tind}) where {Tind,Tval} =
