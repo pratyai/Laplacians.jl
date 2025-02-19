@@ -1618,6 +1618,7 @@ function approxchol_lapGreedy(a::SparseMatrixCSC;
 
   f(b;tol=tol_,maxits=maxits_, maxtime=maxtime_, verbose=verbose_, pcgIts=pcgIts_) = pcg(la, b .- mean(b), F, tol=tol, maxits=maxits, maxtime=maxtime, pcgIts=pcgIts, verbose=verbose, stag_test = params.stag_test)
 
+  return ldli, f
 end
 
 function approxchol_lapGiven(a::SparseMatrixCSC;
@@ -1666,6 +1667,7 @@ function approxchol_lapGiven(a::SparseMatrixCSC;
 
   f(b;tol=tol_,maxits=maxits_, maxtime=maxtime_, verbose=verbose_, pcgIts=pcgIts_) = pcg(la, b .- mean(b), F, tol=tol, maxits=maxits, maxtime=maxtime, pcgIts=pcgIts, verbose=verbose, stag_test = params.stag_test)
 
+  return ldli, f
 end
 
 function approxchol_lapWdeg(a::SparseMatrixCSC;

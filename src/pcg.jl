@@ -275,7 +275,7 @@ function pcg(mat, b::Vector{Tval}, pre::Function;
   bestnr = 1.0
 
   r = copy(b)
-  z = pre(r)
+  z = pre(r .- mean(r))
   p = copy(z)
 
   rho = dot(r, z)
@@ -362,7 +362,7 @@ function pcg(mat, b::Vector{Tval}, pre::Function;
 
     # here is the top of the code in numerical templates
 
-    z = pre(r)
+    z = pre(r .- mean(r))
 
     oldrho = rho
     rho = dot(z, r) # this is gamma in hypre.
