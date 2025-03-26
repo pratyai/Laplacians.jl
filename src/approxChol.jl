@@ -980,7 +980,7 @@ function approxChol(a::LLmatp{Tind,Tval}, split::Int, merge::Int) where {Tind,Tv
     d = zeros(n)
     #@show a.degs
 
-    pq = ApproxCholPQ(a.degs, split)
+    # pq = ApproxCholPQ(a.degs, split)
 
     it = 1
 
@@ -996,7 +996,8 @@ function approxChol(a::LLmatp{Tind,Tval}, split::Int, merge::Int) where {Tind,Tv
 
     @inbounds while it < n
 
-        i = approxCholPQPop!(pq)
+        # i = approxCholPQPop!(pq)
+        i = it
 
         ldli.col[it] = i # conversion!
         ldli.colptr[it] = ldli_row_ptr
@@ -1053,7 +1054,7 @@ function approxChol(a::LLmatp{Tind,Tval}, split::Int, merge::Int) where {Tind,Tv
                     revj = ll.reverse
 
                     if it < n
-                        approxCholPQDec!(pq, j)
+                        # approxCholPQDec!(pq, j)
                     end
 
                     revj.val = zero(Tval)
@@ -1082,7 +1083,7 @@ function approxChol(a::LLmatp{Tind,Tval}, split::Int, merge::Int) where {Tind,Tv
 
             k = colspace[koff].row
 
-            approxCholPQInc!(pq, k)
+            # approxCholPQInc!(pq, k)
 
             #newEdgeVal = f*(one(Tval)-f)*wdeg
             #newEdgeVal = colspace[joffset].val * (csum - cumspace[next_edge - 1]) / csum
@@ -1131,7 +1132,7 @@ function approxChol(a::LLmatp{Tind,Tval}, split::Int, merge::Int) where {Tind,Tv
 
         if it < n
             #@show j
-            approxCholPQDec!(pq, j)
+            # approxCholPQDec!(pq, j)
         end
 
         revj.val = zero(Tval)
