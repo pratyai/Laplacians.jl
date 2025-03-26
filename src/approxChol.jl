@@ -535,7 +535,7 @@ and keeps only `merge`-multiedges
 =#
 function compressAvgCol!(colspace::Vector{LLp{Tind,Tval}},
     len::Int,
-    pq::ApproxCholPQ{Tind},
+    # pq::ApproxCholPQ{Tind},
     merge::Tind) where {Tind,Tval}
 
     o_col = Base.Order.ord(isless, x->x.row, false, Base.Order.Forward)
@@ -582,7 +582,7 @@ function compressAvgCol!(colspace::Vector{LLp{Tind,Tval}},
             currow = colspace[cur_edge].row
             for ii in cur_edge + merge : next_edge -1
                 colspace[ii].reverse.val = zero(Tval)
-                approxCholPQDec!(pq, currow)
+                # approxCholPQDec!(pq, currow)
             end
         end
         cur_edge = next_edge
@@ -978,6 +978,7 @@ function approxChol(a::LLmatp{Tind,Tval}, split::Int, merge::Int) where {Tind,Tv
     ldli_row_ptr = one(Tind)
 
     d = zeros(n)
+    @show "actually given", split, merge
     #@show a.degs
 
     # pq = ApproxCholPQ(a.degs, split)
@@ -1006,7 +1007,8 @@ function approxChol(a::LLmatp{Tind,Tval}, split::Int, merge::Int) where {Tind,Tv
         #=@show=# len = get_ll_col(a, i, colspace)
         # do not compress the column, just sort the entries
         #len = compressCol!(a, colspace, len, pq)  #3hog
-        len = compressAvgCol!(colspace, len, pq, merge)
+        # len = compressAvgCol!(colspace, len, pq, merge)
+        len = compressAvgCol!(colspace, len, merge)
 
         csum = zero(Tval)
         for ii in 1:len
