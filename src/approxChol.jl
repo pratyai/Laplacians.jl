@@ -409,8 +409,7 @@ end
 
 function compressCol!(a::LLmatp{Tind,Tval},
   colspace::Vector{LLp{Tind,Tval}},
-  len::Int,
-  pq::ApproxCholPQ{Tind}) where {Tind,Tval}
+  len::Int) where {Tind,Tval}
 
     o = Base.Order.ord(isless, x->x.row, false, Base.Order.Forward)
 
@@ -432,7 +431,7 @@ function compressCol!(a::LLmatp{Tind,Tval},
             c[ptr].val = c[ptr].val + c[i].val
             c[i].reverse.val = zero(Tval)
 
-            approxCholPQDec!(pq, currow)
+            # approxCholPQDec!(pq, currow)
         end
     end
 
@@ -864,7 +863,8 @@ function approxChol(a::LLmatp{Tind,Tval}) where {Tind,Tval}
 
     d = zeros(n)
 
-    pq = ApproxCholPQ(a.degs)
+    @show "actually given", split, merge
+    # pq = ApproxCholPQ(a.degs)
 
     it = 1
 
@@ -876,7 +876,8 @@ function approxChol(a::LLmatp{Tind,Tval}) where {Tind,Tval}
 
     @inbounds while it < n
 
-        i = approxCholPQPop!(pq)
+        # i = approxCholPQPop!(pq)
+        i = it
 
         ldli.col[it] = i # conversion!
         ldli.colptr[it] = ldli_row_ptr
@@ -885,7 +886,7 @@ function approxChol(a::LLmatp{Tind,Tval}) where {Tind,Tval}
 
         len = get_ll_col(a, i, colspace)
 
-        len = compressCol!(a, colspace, len, pq)  #3hog
+        len = compressCol!(a, colspace, len)  #3hog
 
         csum = zero(Tval)
         for ii in 1:len
@@ -914,7 +915,7 @@ function approxChol(a::LLmatp{Tind,Tval}) where {Tind,Tval}
 
             k = colspace[koff].row
 
-            approxCholPQInc!(pq, k)
+            # approxCholPQInc!(pq, k)
 
             newEdgeVal = f*(one(Tval)-f)*wdeg
 
@@ -951,7 +952,7 @@ function approxChol(a::LLmatp{Tind,Tval}) where {Tind,Tval}
         revj = ll.reverse
 
         if it < n
-            approxCholPQDec!(pq, j)
+            # approxCholPQDec!(pq, j)
         end
 
         revj.val = zero(Tval)
@@ -1007,6 +1008,7 @@ function approxChol(a::LLmatp{Tind,Tval}, split::Int, merge::Int) where {Tind,Tv
         #=@show=# len = get_ll_col(a, i, colspace)
         # do not compress the column, just sort the entries
         #len = compressCol!(a, colspace, len, pq)  #3hog
+        # len = compressCol!(a, colspace, len)  #3hog
         # len = compressAvgCol!(colspace, len, pq, merge)
         len = compressAvgCol!(colspace, len, merge)
 
